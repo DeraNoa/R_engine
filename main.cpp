@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include "Renderer.h"
 
-LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdSHow)
 {

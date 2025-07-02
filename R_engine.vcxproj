@@ -129,13 +129,11 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="R_engine.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="R_engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="R_engine.rc" />
