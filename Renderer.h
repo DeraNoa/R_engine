@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <d2d1.h>
 #include <wincodec.h>
+#include <dwrite.h>
+#include <string>
 
 class Renderer
 {
@@ -25,4 +27,10 @@ class Renderer
 		/*DrawGroundImage*/
 		IWICImagingFactory* m_wicFactory = nullptr;
 		ID2D1Bitmap* m_backgroundBitmap = nullptr;
+
+		/*DrawText*/
+		// メンバ変数追加
+		IDWriteFactory* m_dwriteFactory = nullptr;
+		IDWriteTextFormat* m_textFormat = nullptr;
+		std::wstring m_dialogText = L"ベルリン入りする際のルートは?";
 };

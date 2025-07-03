@@ -16,6 +16,8 @@ bool Renderer::Initialize(HWND hwnd)
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
     D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_factory);
+
+	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&m_dwriteFactory));
 	
     RECT rc;
     GetClientRect(hwnd, &rc);
@@ -31,8 +33,9 @@ bool Renderer::Initialize(HWND hwnd)
 
 
     m_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),D2D1::HwndRenderTargetProperties(hwnd, size),&m_renderTarget);
+    m_dwriteFactory->CreateTextFormat(L"Meiryo",nullptr,DWRITE_FONT_WEIGHT_NORMAL,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,24.0f,L"ja-jp",&m_textFormat);
 
-    m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::SkyBlue), &m_brush);
+    m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::WhiteSmoke), &m_brush);
    
     // ”wŒi‰æ‘œ“Ç‚Ýž‚Ýi‘Š‘ÎƒpƒX OKj
     LoadBackgroundImage(L"C:/Users/deran/Desktop/koukaku.png");
@@ -51,9 +54,15 @@ void Renderer::Render() {
     if (m_backgroundBitmap) 
     {
         D2D1_SIZE_F size = m_backgroundBitmap->GetSize();
-        m_renderTarget->DrawBitmap(m_backgroundBitmap, D2D1::RectF(0, 0, size.width-500, size.height - 300));
+        m_renderTarget->DrawBitmap(m_backgroundBitmap, D2D1::RectF(0, 0, size.width-500, size.height - 250));
 
     }
+
+    if (!m_dialogText.empty()) {
+        D2D1_RECT_F layoutRect = D2D1::RectF(200, 500, 750, 580);
+        m_renderTarget->DrawTextW(m_dialogText.c_str(),(UINT32)m_dialogText.length(),m_textFormat,&layoutRect,m_brush);
+    }
+
     m_renderTarget->EndDraw();
 }
 
@@ -127,6 +136,14 @@ void Renderer::Cleanup() {
     {
         m_wicFactory->Release();
         m_wicFactory = nullptr;
+    }
+    if (m_textFormat) {
+        m_textFormat->Release();
+        m_textFormat = nullptr;
+    }
+    if (m_dwriteFactory) {
+        m_dwriteFactory->Release();
+        m_dwriteFactory = nullptr;
     }
     CoUninitialize();
 }
