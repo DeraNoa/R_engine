@@ -31,6 +31,11 @@ bool Renderer::Initialize(HWND hwnd)
         return false;
     }
 
+    // セリフリスト（仮：あとでスクリプトから読み込む）
+    m_scriptLines = { L"攻殻機動隊セリフ",L"ベルリン入りする際のルートは?",L"草薙素子" };
+
+	m_textIndex = 0; // 初期化
+	m_dialogText = m_scriptLines[m_textIndex]; // 初期のテキストを設定
 
     m_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),D2D1::HwndRenderTargetProperties(hwnd, size),&m_renderTarget);
     m_dwriteFactory->CreateTextFormat(L"Meiryo",nullptr,DWRITE_FONT_WEIGHT_NORMAL,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,24.0f,L"ja-jp",&m_textFormat);
@@ -107,6 +112,17 @@ bool Renderer::LoadBackgroundImage(const wchar_t* filename)
     }
     
 	return true;
+}
+
+void Renderer::NextText() {
+    if (m_textIndex + 1 < (int)m_scriptLines.size()) {
+        m_textIndex++;
+        m_dialogText = m_scriptLines[m_textIndex];
+    }
+    else {
+        // 最後まで表示したら止める or ループ
+        m_dialogText = L"終わりです。";
+    }
 }
 
 

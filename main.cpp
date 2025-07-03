@@ -3,6 +3,7 @@
 #include "Renderer.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+Renderer* g_renderer = nullptr;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdSHow)
 {
@@ -25,6 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdSHow)
 	ShowWindow(hwnd, nCmdSHow);
 
 	Renderer renderer;
+	g_renderer = &renderer;
 	if (!renderer.Initialize(hwnd)) {
 		MessageBox(hwnd, L"Renderer initialization failed", L"Error", MB_OK);
 		return 0;
@@ -54,6 +56,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		return 0;
+	case WM_LBUTTONDOWN:
+		if (g_renderer) {
+			g_renderer->NextText();
+		}
 		return 0;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);

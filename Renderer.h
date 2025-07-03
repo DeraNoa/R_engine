@@ -4,6 +4,7 @@
 #include <wincodec.h>
 #include <dwrite.h>
 #include <string>
+#include <vector>
 
 class Renderer
 {
@@ -14,6 +15,7 @@ class Renderer
 		bool Initialize(HWND hwnd);
 		void Render();
 		bool LoadBackgroundImage(const wchar_t* imagePath);
+		void NextText();
 		void Cleanup();
 
 
@@ -33,4 +35,7 @@ class Renderer
 		IDWriteFactory* m_dwriteFactory = nullptr;
 		IDWriteTextFormat* m_textFormat = nullptr;
 		std::wstring m_dialogText = L"ƒxƒ‹ƒŠƒ““ü‚è‚·‚éÛ‚Ìƒ‹[ƒg‚Í?";
+
+		std::vector<std::wstring> m_scriptLines;
+		int m_textIndex = 0;
 };
