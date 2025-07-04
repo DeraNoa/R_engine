@@ -3,6 +3,9 @@
 Renderer::Renderer()
 {
 	// Initialize the renderer
+
+ 
+
 }
 
 Renderer::~Renderer()
@@ -32,10 +35,14 @@ bool Renderer::Initialize(HWND hwnd)
     }
 
     // セリフリスト（仮：あとでスクリプトから読み込む）
-    m_scriptLines = { L"攻殻機動隊セリフ",L"ベルリン入りする際のルートは?",L"草薙素子" };
+    m_scriptLines = { L"攻殻機動隊セリフ",L"Rage your dream 時を駆け抜けてゆく風も　光満ちてゆく",L"Rage your dream 待っていることだけをFeel the wind 忘れ ないでいて" };
 
 	m_textIndex = 0; // 初期化
 	m_dialogText = m_scriptLines[m_textIndex]; // 初期のテキストを設定
+    m_dialogText.clear();
+    m_charIndex = 0;
+    m_isTextFullyShown = false;
+    m_lastCharTime = std::chrono::steady_clock::now();
 
     m_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),D2D1::HwndRenderTargetProperties(hwnd, size),&m_renderTarget);
     m_dwriteFactory->CreateTextFormat(L"Meiryo",nullptr,DWRITE_FONT_WEIGHT_NORMAL,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,24.0f,L"ja-jp",&m_textFormat);
@@ -62,6 +69,25 @@ void Renderer::Render() {
         m_renderTarget->DrawBitmap(m_backgroundBitmap, D2D1::RectF(0, 0, size.width-500, size.height - 250));
 
     }
+
+    // ★ 文字送り制御（1文字ずつ増やす）
+    if (!m_isTextFullyShown) 
+    {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastCharTime);
+        if (elapsed.count() >= m_charIntervalMs) {
+            if (m_charIndex < (int)m_dialogTextFull.length()) {
+                m_charIndex++;
+                m_dialogText = m_dialogTextFull.substr(0, m_charIndex);
+                m_lastCharTime = now; // ← ここで更新
+            }
+            else
+            {
+                m_isTextFullyShown = true;
+            }
+        }
+    }
+
 
     if (!m_dialogText.empty()) {
         D2D1_RECT_F layoutRect = D2D1::RectF(200, 500, 750, 580);
@@ -115,13 +141,26 @@ bool Renderer::LoadBackgroundImage(const wchar_t* filename)
 }
 
 void Renderer::NextText() {
+    if (!m_isTextFullyShown) {
+        // 文字送り途中なら即全文表示
+        m_charIndex = (int)m_dialogTextFull.length();
+        m_dialogText = m_dialogTextFull;
+        m_isTextFullyShown = true;
+        return;
+    }
+
+    // 次の行へ進む
     if (m_textIndex + 1 < (int)m_scriptLines.size()) {
         m_textIndex++;
-        m_dialogText = m_scriptLines[m_textIndex];
+        m_dialogTextFull = m_scriptLines[m_textIndex];
+        m_dialogText.clear();
+        m_charIndex = 0;
+        m_isTextFullyShown = false;
     }
     else {
-        // 最後まで表示したら止める or ループ
-        m_dialogText = L"終わりです。";
+        m_dialogTextFull = L"終わりです。";
+        m_dialogText = m_dialogTextFull;
+        m_isTextFullyShown = true;
     }
 }
 
