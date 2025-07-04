@@ -60,8 +60,10 @@ void Renderer::Render() {
     m_renderTarget->BeginDraw();
 
     m_renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
-
-    m_renderTarget->FillRectangle(D2D1::RectF(100, 100, 300, 200), m_brush); //DrawBox
+    // 名前表示用の箱
+    D2D1_RECT_F nameBox = D2D1::RectF(50, 350, 300, 385);
+    m_renderTarget->FillRectangle(nameBox, m_brush); // ← 白箱（後で色変更も可）
+    //m_renderTarget->FillRectangle(D2D1::RectF(100, 100, 300, 200), m_brush); //DrawBox
 
     if (m_backgroundBitmap) 
     {
@@ -69,6 +71,18 @@ void Renderer::Render() {
         m_renderTarget->DrawBitmap(m_backgroundBitmap, D2D1::RectF(0, 0, size.width-500, size.height - 250));
 
     }
+
+    // 名前文字列（黒文字にするため別ブラシ）
+    ID2D1SolidColorBrush* nameBrush = nullptr;
+    m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &nameBrush);
+    m_renderTarget->DrawTextW(
+        m_nameText.c_str(),
+        (UINT32)m_nameText.length(),
+        m_textFormat,
+        &nameBox,
+        nameBrush
+    );
+    nameBrush->Release();
 
     // ★ 文字送り制御（1文字ずつ増やす）
     if (!m_isTextFullyShown) 
@@ -147,6 +161,16 @@ void Renderer::NextText() {
         m_dialogText = m_dialogTextFull;
         m_isTextFullyShown = true;
         return;
+    }
+
+    if (m_textIndex == 0) {
+        m_nameText = L"リカ";
+    }
+    else if (m_textIndex == 1) {
+        m_nameText = L"ユウキ";
+    }
+    else {
+        m_nameText = L"？？？";
     }
 
     // 次の行へ進む

@@ -48,4 +48,6 @@ class Renderer
 		std::chrono::steady_clock::time_point m_lastCharTime; //最後の更新時間
 		int m_charIntervalMs = 50; /* ← 表示間隔（ms）。大きくすると遅くなる（例 : 50 = 0.05秒）*/
 
+		std::wstring m_nameText = L"リカ"; // キャラクターの名前
+
 };
