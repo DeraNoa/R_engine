@@ -1,4 +1,8 @@
 #include "Renderer.h"
+#include <fstream>
+#include <sstream>
+#include <locale>
+#include <codecvt>
 
 Renderer::Renderer()
 {
@@ -34,6 +38,19 @@ bool Renderer::Initialize(HWND hwnd)
         return false;
     }
 
+    LoadScriptFromFile(L"C:\script.txt");
+
+    m_textIndex = 0;
+    if (!m_script.empty()) {
+        m_nameText = m_script[0].name;
+        m_dialogTextFull = m_script[0].message;
+        m_dialogText.clear();
+        m_charIndex = 0;
+        m_isTextFullyShown = false;
+        m_lastCharTime = std::chrono::steady_clock::now();
+    }
+
+#if 0
     // セリフリスト（仮：あとでスクリプトから読み込む）
     m_scriptLines = { L"攻殻機動隊セリフ",L"Rage your dream 時を駆け抜けてゆく風も　光満ちてゆく",L"Rage your dream 待っていることだけをFeel the wind 忘れ ないでいて" };
 
@@ -43,7 +60,7 @@ bool Renderer::Initialize(HWND hwnd)
     m_charIndex = 0;
     m_isTextFullyShown = false;
     m_lastCharTime = std::chrono::steady_clock::now();
-
+#endif
     m_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),D2D1::HwndRenderTargetProperties(hwnd, size),&m_renderTarget);
     m_dwriteFactory->CreateTextFormat(L"Meiryo",nullptr,DWRITE_FONT_WEIGHT_NORMAL,DWRITE_FONT_STYLE_NORMAL,DWRITE_FONT_STRETCH_NORMAL,24.0f,L"ja-jp",&m_textFormat);
 
@@ -51,6 +68,8 @@ bool Renderer::Initialize(HWND hwnd)
    
     // 背景画像読み込み（相対パス OK）
     LoadBackgroundImage(L"C:/Users/deran/Desktop/koukaku.png");
+
+
 
 	return true; // Return true if successful
 }
@@ -163,6 +182,7 @@ void Renderer::NextText() {
         return;
     }
 
+#if 0
     if (m_textIndex == 0) {
         m_nameText = L"リカ";
     }
@@ -172,20 +192,50 @@ void Renderer::NextText() {
     else {
         m_nameText = L"？？？";
     }
-
+#endif
     // 次の行へ進む
-    if (m_textIndex + 1 < (int)m_scriptLines.size()) {
+    //if (m_textIndex + 1 < (int)m_scriptLines.size()) {
+    if (m_textIndex + 1 < (int)m_script.size()) {
         m_textIndex++;
-        m_dialogTextFull = m_scriptLines[m_textIndex];
+        //m_dialogTextFull = m_scriptLines[m_textIndex];
+        m_nameText = m_script[m_textIndex].name;
+        m_dialogTextFull = m_script[m_textIndex].message;
         m_dialogText.clear();
         m_charIndex = 0;
         m_isTextFullyShown = false;
+        m_lastCharTime = std::chrono::steady_clock::now();
     }
     else {
         m_dialogTextFull = L"終わりです。";
         m_dialogText = m_dialogTextFull;
         m_isTextFullyShown = true;
     }
+}
+
+
+bool Renderer::LoadScriptFromFile(const wchar_t* filename) {
+    std::ifstream file(filename); // ← narrow文字で開く
+    if (!file.is_open()) return false;
+
+    std::string line;
+    while (std::getline(file, line)) {
+        // UTF-8 → wstring に変換
+        int wlen = MultiByteToWideChar(CP_UTF8, 0, line.c_str(), -1, nullptr, 0);
+        std::wstring wline(wlen, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, line.c_str(), -1, &wline[0], wlen);
+        wline.pop_back(); // \0を除去
+
+        size_t sep = wline.find(L'|');
+        if (sep != std::wstring::npos) {
+            ScriptLine entry;
+            entry.name = wline.substr(0, sep);
+            entry.message = wline.substr(sep + 1);
+            m_script.push_back(entry);
+        }
+    }
+
+    file.close();
+    return true;
 }
 
 

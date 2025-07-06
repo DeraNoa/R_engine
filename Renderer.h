@@ -17,6 +17,7 @@ class Renderer
 		void Render();
 		bool LoadBackgroundImage(const wchar_t* imagePath);
 		void NextText();
+		bool LoadScriptFromFile(const wchar_t* filename);
 		void Cleanup();
 
 
@@ -35,7 +36,16 @@ class Renderer
 		// メンバ変数追加
 		IDWriteFactory* m_dwriteFactory = nullptr;
 		IDWriteTextFormat* m_textFormat = nullptr;
-		std::wstring m_dialogText = L"ベルリン入りする際のルートは?";
+		//std::wstring m_dialogText = L"ベルリン入りする際のルートは?";
+		std::wstring m_dialogText;
+
+
+		struct ScriptLine {
+			std::wstring name;
+			std::wstring message;
+		};
+
+		std::vector<ScriptLine> m_script; // スクリプトの行を格納するベクター
 
 		std::vector<std::wstring> m_scriptLines;
 		int m_textIndex = 0;
@@ -49,5 +59,8 @@ class Renderer
 		int m_charIntervalMs = 50; /* ← 表示間隔（ms）。大きくすると遅くなる（例 : 50 = 0.05秒）*/
 
 		std::wstring m_nameText = L"リカ"; // キャラクターの名前
+
+
+
 
 };
